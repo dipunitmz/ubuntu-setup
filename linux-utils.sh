@@ -35,5 +35,5 @@ ports() {
 
 EOF
 
-echo "✔ Utilities added. Reload terminal or run:"
+echo "Utilities added. Reload terminal or run:"
 echo "source ~/.bashrc"
