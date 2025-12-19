@@ -1,0 +1,10 @@
+166  sudo apt update -y
+167  sudo apt install docker.io\n
+168  sudo systemctl status docker\n\n\n\n
+169  c
+170  clear
+171  docker run hello-world //error
+172  sudo usermod -aG docker ubuntu
+173  logout
+174  docker run hello-world
+175  sudo docker run hello-world
