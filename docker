@@ -8,3 +8,13 @@
 173  logout
 174  docker run hello-world
 175  sudo docker run hello-world
+
+  198  cat app.py
+  199  nvim Dockerfile
+ 
+  202  sudo docker build -t dk95074450/my-first:latest .
+  205  sudo docker run -it dk95074450/my-first:latest
+
+  209  sudo docker login\n
+  210  sudo docker push dk95074450/my-first:latest\n
+
