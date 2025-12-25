@@ -1,0 +1,34 @@
+       rm ~/.zshrc
+  466  uninstall_oh_my_zsh
+
+  467  mv ~/.bashrc ~/.bashrc.old
+  468  mv ~/.bash_profile ~/.bash_profile.old
+  469  cp /etc/skel/.bashrc ~/
+  470  conf reset -f /org/gnome/terminal/legacy/profiles:/
+  471  dconf reset -f /org/gnome/terminal/legacy/profiles:/
+
+  472 git clone https://github.com/zsh-users/zsh-autosuggestions
+     ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions 
+     # Real-time syntax coloring (highlights valid commands in green)
+     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git 
+     ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+     # Live dropdown menu for completions\n
+     git clone --depth 1 github.com ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autocomplete
+  473  nano ~/.zshrc
+
+  477  source ~/.zshrc\n
+
+  481  source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+  488  sudo apt install lsd\n
+  489  echo "alias ls='lsd --group-dirs first'" >> ~/.zshrc
+       echo "alias ll='lsd -lah --group-dirs first'" >> ~/.zshrc
+       source ~/.zshrc
+
+  502  dconf dump /org/gnome/ > gnome-shortcuts.txt
+  504  gedit gnome-shortcuts.txt
+  505  gsettings get org.gnome.settings-daemon.plugins.media-keys terminal
+  506  gsettings list-recursively org.gnome.settings-daemon.plugins.media-keys
+  507  gsettings list-recursively org.gnome.settings-daemon.plugins.media-keys > ~/media-keys-shortcuts.txt
+  508  gsettings list-recursively | grep -i "<Control>"
+  510  gedit media-keys-shortcuts.txt
