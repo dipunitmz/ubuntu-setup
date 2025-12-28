@@ -1,0 +1,20 @@
+sudo apt update && sudo apt install linux-headers-$(uname -r) build-essential dkms git
+git clone https://github.com/tomaspinho/rtl8821ce.git
+cd rtl8821ce
+sudo ./dkms-install.sh
+
+What to do now (Before Reboot)
+  Create a password: Enter a simple password (e.g., 12345678).
+  Confirm it: Type it again when asked.
+Write it down: You will need to type this exact password in a blue screen after you restart.
+
+What to do after you Reboot (The Blue Screen)
+  When your computer restarts, a blue screen titled "Perform MOK management" will appear. Note: You only have about 10 seconds to press a key before it continues to boot normally, so be ready!
+  Press any key to enter the menu.
+  Select Enroll MOK and press Enter.
+  Select Continue.
+  Select Yes when asked "Enroll the key(s)?".
+  Enter the password you just created (e.g., 12345678).
+  Note: The screen will stay blank as you type (no stars/dots). Just type it and hit Enter.
+  Select Reboot.
+  
