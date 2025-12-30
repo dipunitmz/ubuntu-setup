@@ -1,0 +1,43 @@
+# ==========================================
+# GitHub SSH Setup & Verification (Linux)
+# ==========================================
+
+# 1. Check existing SSH keys
+ls -la ~/.ssh
+
+# 2. Generate a new SSH key (only if needed)
+# Replace with your GitHub email
+ssh-keygen -t ed25519 -C "your_email@example.com"
+
+# 3. Start the SSH agent
+eval "$(ssh-agent -s)"
+
+# 4. Add SSH key to the agent
+ssh-add ~/.ssh/id_ed25519
+
+# 5. Verify key is loaded
+ssh-add -l
+
+# 6. Create / update SSH config for GitHub
+cat << 'EOF' > ~/.ssh/config
+Host github.com
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519
+  AddKeysToAgent yes
+EOF
+
+# 7. Set correct permissions
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/config
+chmod 600 ~/.ssh/id_ed25519
+chmod 644 ~/.ssh/id_ed25519.pub
+
+# 8. Show public key (copy this into GitHub → SSH keys)
+cat ~/.ssh/id_ed25519.pub
+
+# 9. Test SSH connection to GitHub
+ssh -T git@github.com
+
+# 10. (Optional) Debug connection if something fails
+ssh -vvv git@github.com
