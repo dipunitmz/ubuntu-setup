@@ -1,0 +1,12 @@
+nano ~/.local/share/applications/postman.desktop
+
+[Desktop Entry]
+Encoding=UTF-8
+Name=Postman
+Exec=/home/dipu/Downloads/postman-linux-x64/Postman/Postman
+Icon=/home/dipu/Downloads/postman-linux-x64/Postman/app/resources/app/assets/icon.png
+Terminal=false
+Type=Application
+Categories=Development;
+
+chmod +x ~/.local/share/applications/postman.desktop
