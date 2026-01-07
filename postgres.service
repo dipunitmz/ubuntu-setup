@@ -1,0 +1,22 @@
+Host name/address:
+
+    For a local server, use localhost or 127.0.0.1.
+    For a remote server, enter its IP address or domain name.
+
+Port: Default is 5432.
+Maintenance database: Usually postgres.
+Username: Typically postgres (unless you created a specific user).
+Password: The password you set during PostgreSQL installation.
+Check Save password? if you do not want to re-enter it every time you connec
+
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+sudo systemctl status postgresql 
+sudo -i -u postgres psql
+systemctl list-unit-files | grep postgres
+dpkg -l | grep postgresql-
+sudo apt update && sudo apt install postgresql
+sudo postgresql-setup --initdb
+sudo systemctl start postgresql
+ALTER USER postgres WITH PASSWORD 'your_new_password';
+\q
