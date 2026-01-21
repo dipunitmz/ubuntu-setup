@@ -1,0 +1,65 @@
+#!/bin/bash
+
+echo "========================================"
+echo " Switching system to Java 8 (LEGACY MODE)"
+echo "========================================"
+
+# 1. Switch java to Java 8
+sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/bin/java
+sudo update-alternatives --set javac /usr/lib/jvm/java-8-openjdk-amd64/bin/javac
+
+# 2. Set JAVA_HOME for this shell
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export PATH=$JAVA_HOME/bin:$PATH
+
+echo ""
+echo "Java version in use:"
+java -version
+echo ""
+echo "Maven version in use:"
+mvn -version
+
+echo ""
+echo "========================================"
+echo " Cleaning Maven cache (fix corrupted JARs)"
+echo "========================================"
+
+rm -rf ~/.m2/repository
+
+echo ""
+echo "========================================"
+echo " Building legacy Spring Boot project"
+echo "========================================"
+
+mvn clean install
+
+BUILD_STATUS=$?
+
+if [ $BUILD_STATUS -ne 0 ]; then
+  echo ""
+  echo "❌ Build failed. Check errors above."
+  exit 1
+fi
+
+echo ""
+echo "✅ Build successful!"
+echo ""
+echo "Run the app with:"
+echo "  mvn spring-boot:run"
+
+echo ""
+echo "========================================"
+echo " HOW TO SWITCH BACK TO JAVA 21 (MODERN)"
+echo "========================================"
+echo ""
+echo "Run these commands when done with legacy project:"
+echo ""
+echo "sudo update-alternatives --set java /usr/lib/jvm/java-21-openjdk-amd64/bin/java"
+echo "sudo update-alternatives --set javac /usr/lib/jvm/java-21-openjdk-amd64/bin/javac"
+echo ""
+echo "Optional (for current shell):"
+echo "unset JAVA_HOME"
+echo ""
+echo "Verify:"
+echo "java -version"
+echo "========================================"
