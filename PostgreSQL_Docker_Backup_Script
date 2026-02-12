@@ -57,7 +57,7 @@ echo "Output    : $BACKUP_FILE"
 echo "-----------------------------------"
 
 # ---------- BACKUP COMMAND ----------
-
+                            -------------------------------------------------------------------->>>>>>>> docker exec -it bookmark-api-bookmark-db-1 sh
 docker exec "$CONTAINER"  and -------------------------------------------------------------------->>>>>> docker exec docker-image-name:version sh ----to go into docker then go ----------/var/lib/ --go--
 pg_dump -U "$DB_USER" "$DB_NAME"  ---------------------------------------------------------------->>>>>> pg_dump -U postgres bookmarkdatabase > /tmp/backup_sql.sql
 > "$BACKUP_FILE"
