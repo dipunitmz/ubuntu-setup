@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+
+# ============================================================
+
+# PostgreSQL Docker Backup Script
+
+# ============================================================
+
+# What this script does:
+
+# 1️⃣ Creates SQL backup from running postgres container
+
+# 2️⃣ Stores backup on host machine with timestamp
+
+# 3️⃣ Verifies file creation
+
+#
+
+# Requirements:
+
+# - Docker running
+
+# - Container name correct
+
+# - pg_dump available inside container (official images have it)
+
+#
+
+# Usage:
+
+# chmod +x pg_backup.sh
+
+# ./pg_backup.sh
+
+# ============================================================
+
+# ---------- CONFIGURATION ----------
+
+CONTAINER="bookmark-api-bookmark-db-1"
+DB_USER="postgres"
+DB_NAME="bookmarkdatabase"
+BACKUP_DIR="$HOME/pg_backups"
+
+# Create backup directory if missing
+
+mkdir -p "$BACKUP_DIR"
+
+# Timestamped filename
+
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+BACKUP_FILE="$BACKUP_DIR/${DB_NAME}_${TIMESTAMP}.sql"
+
+echo "Starting backup..."
+echo "Container : $CONTAINER"
+echo "Database  : $DB_NAME"
+echo "Output    : $BACKUP_FILE"
+echo "-----------------------------------"
+
+# ---------- BACKUP COMMAND ----------
+
+docker exec "$CONTAINER"  and -------------------------------------------------------------------->>>>>> docker exec docker-image-name:version sh ----to go into docker then go ----------/var/lib/ --go--
+pg_dump -U "$DB_USER" "$DB_NAME"  ---------------------------------------------------------------->>>>>> pg_dump -U postgres bookmarkdatabase > /tmp/backup_sql.sql
+> "$BACKUP_FILE"
+
+# ---------- VERIFY ----------
+
+if [ $? -eq 0 ]; then
+echo "Backup completed successfully!"
+ls -lh "$BACKUP_FILE"
+else
+echo "Backup FAILED!"
+exit 1
+fi
+
+# ============================================================
+
+# RESTORE INSTRUCTIONS (manual)
+
+# ============================================================
+
+# cat backup.sql | docker exec -i CONTAINER_NAME \
+
+# psql -U postgres -d bookmarkdatabase
+
+#
+
+# Example:
+
+# cat mybackup.sql | docker exec -i bookmark-api-bookmark-db-1 \---------------------------------------->>>>>>>>>>> docker cp bookmark-api-bookmark-db-1:/tmp/backup_sql.sql ~/working/.
+
+# psql -U postgres -d bookmarkdatabase
+
+#
+
+# ============================================================
