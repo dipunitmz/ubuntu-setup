@@ -17,11 +17,8 @@
 #
 
 # Requirements:
-
 # - Docker running
-
 # - Container name correct
-
 # - pg_dump available inside container (official images have it)
 
 #
@@ -42,10 +39,7 @@ DB_NAME="bookmarkdatabase"
 BACKUP_DIR="$HOME/pg_backups"
 
 # Create backup directory if missing
-
 mkdir -p "$BACKUP_DIR"
-
-# Timestamped filename
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 BACKUP_FILE="$BACKUP_DIR/${DB_NAME}_${TIMESTAMP}.sql"
@@ -56,11 +50,18 @@ echo "Database  : $DB_NAME"
 echo "Output    : $BACKUP_FILE"
 echo "-----------------------------------"
 
-# ---------- BACKUP COMMAND ----------
+                               ----------------------------------------->>>>>>>>>> docker run --rm  -v pgdata:/volume  -v $(pwd):/backup alpine tar czf /backup/pgdata.tar.gz -C /volume .
                             -------------------------------------------------------------------->>>>>>>> docker exec -it bookmark-api-bookmark-db-1 sh
-docker exec "$CONTAINER"  and -------------------------------------------------------------------->>>>>> docker exec docker-image-name:version sh ----to go into docker then go ----------/var/lib/ --go--
+docker exec "$CONTAINER"  and -------------------------------------------------------------------->>>>>> docker exec docker-image-name:version sh ----to go into docker then go ----------pgdata:/var/lib/postgresql/data --go--
 pg_dump -U "$DB_USER" "$DB_NAME"  ---------------------------------------------------------------->>>>>> pg_dump -U postgres bookmarkdatabase > /tmp/backup_sql.sql
-> "$BACKUP_FILE"
+
+                                                          Order ---------------order------------------  
+                                                                      Command line
+                                                                      Environment variables  
+                                                                      application-local.yml
+                                                                      application.yml
+
+
 
 # ---------- VERIFY ----------
 
@@ -73,23 +74,13 @@ exit 1
 fi
 
 # ============================================================
-
 # RESTORE INSTRUCTIONS (manual)
-
 # ============================================================
 
 # cat backup.sql | docker exec -i CONTAINER_NAME \
-
 # psql -U postgres -d bookmarkdatabase
-
-#
-
-# Example:
-
 # cat mybackup.sql | docker exec -i bookmark-api-bookmark-db-1 \---------------------------------------->>>>>>>>>>> docker cp bookmark-api-bookmark-db-1:/tmp/backup_sql.sql ~/working/.
 
 # psql -U postgres -d bookmarkdatabase
-
-#
 
 # ============================================================
