@@ -1,0 +1,13 @@
+app_name=$1
+
+mvn archetype:generate \
+  -DgroupId=io.sh.${app_name} \
+  -DartifactId=${app_name} \
+  -DarchetypeArtifactId=maven-archetype-quickstart \
+  -DinteractiveMode=false
+
+move this to the /usr/local/bin/filename
+
+sudo mv this_downlaod-name.sh  /usr/local/bin/filename
+change permission 
+and done 
