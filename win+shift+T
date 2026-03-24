@@ -1,0 +1,13 @@
+Top Recommendation: NormCap
+NormCap is the closest equivalent because it is "stateless"—it doesn't open a main window first; it just puts the screen into "capture mode" immediately upon launch. 
+
+Install via Flatpak:
+bash>>
+  flatpak install flathub com.github.dynobo.normcap
+
+Set the Shortcut: Open your system's Keyboard Settings -> Custom Shortcuts and create a new one:
+Name: Text Extractor
+Command: flatpak run com.github.dynobo.normcap
+Shortcut: Super + Shift + T (Note: Super is your Windows key).
+
+How it works: When you press the shortcut, a red border appears. Select your text, and it is automatically copied to your clipboard. 
