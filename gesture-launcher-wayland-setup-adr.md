@@ -268,7 +268,7 @@ crontab -e
 
 ---
 
-# ⚡ Touchpad Optimization
+#  Touchpad Optimization
 
 ## Install tools:
 
