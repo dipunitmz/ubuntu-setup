@@ -1,0 +1,162 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ============================================================
+# Ubuntu 26.04 / Lenovo IdeaPad Slim 3 15AHP10 (83KA)
+# Rebuild script for the changes/installations actually applied
+# during the previous troubleshooting chats.
+#
+# IMPORTANT:
+# - This intentionally does NOT add the unconfirmed i8042 GRUB
+#   parameters.
+# - It does NOT install Playwright.
+# - It does NOT install the ToF PPA; the extensions were installed
+#   from the Git repository into the user's local Nautilus extension
+#   directory.
+# ============================================================
+
+echo "== 1. System packages used by Nautilus-Extensions =="
+
+sudo apt update
+
+sudo apt install -y \
+    python3-nautilus \
+    python3-gi \
+    gir1.2-gtk-4.0 \
+    gir1.2-adw-1 \
+    gir1.2-nautilus-4.1 \
+    ghostscript \
+    ffmpeg \
+    python3-pypdf \
+    python3-cairo \
+    7zip \
+    unrar \
+    poppler-utils
+
+echo
+echo "== 2. Kernel meta-package =="
+# Ubuntu 26.04 system was brought to the 7.0.0-31 kernel line.
+# Installing the generic meta-package keeps the generic kernel updated.
+sudo apt install -y linux-generic
+
+echo
+echo "== 3. Get/update ToFpon Nautilus-Extensions =="
+
+REPO="$HOME/Nautilus-Extensions"
+EXT="$HOME/.local/share/nautilus-python/extensions"
+
+if [[ -d "$REPO/.git" ]]; then
+    echo "Repository already exists: $REPO"
+    git -C "$REPO" pull --ff-only
+else
+    git clone https://github.com/ToFpon/Nautilus-Extensions.git "$REPO"
+fi
+
+mkdir -p "$EXT"
+
+echo
+echo "== 4. Install the ToFpon Python extensions =="
+
+# Remove stale Python bytecode before copying.
+rm -rf "$EXT/__pycache__"
+
+cp "$REPO"/*.py "$EXT/"
+
+# The repository targets Nautilus 4.0, while this Ubuntu system
+# provides Nautilus GI namespace 4.1. Patch only the Nautilus
+# require_version calls; do not touch Gtk/Gdk 4.0 requirements.
+python3 - <<'PY'
+from pathlib import Path
+
+ext = Path.home() / ".local/share/nautilus-python/extensions"
+
+for f in ext.glob("*.py"):
+    if not f.is_file():
+        continue
+
+    s = f.read_text()
+
+    s = s.replace(
+        'require_version("Nautilus", "4.0")',
+        'require_version("Nautilus", "4.1")'
+    )
+    s = s.replace(
+        "require_version('Nautilus', '4.0')",
+        "require_version('Nautilus', '4.1')"
+    )
+    s = s.replace(
+        'require_version("Nautilus","4.0")',
+        'require_version("Nautilus","4.1")'
+    )
+    s = s.replace(
+        "require_version('Nautilus','4.0')",
+        "require_version('Nautilus','4.1')"
+    )
+
+    f.write_text(s)
+PY
+
+echo
+echo "== 5. Remove the broken old GSConnect Nautilus symlink =="
+
+# This was a broken local extension and caused:
+# ModuleNotFoundError: No module named 'nautilus-gsconnect'
+rm -f "$EXT/nautilus-gsconnect.py"
+
+echo
+echo "== 6. Disable the unrelated convert-into-readme extension =="
+
+# This custom extension required the Python 'playwright' module.
+# We disabled it rather than installing Playwright just for Nautilus.
+mkdir -p "$EXT/disabled"
+
+if [[ -f "$EXT/covert_into_readme.py" ]]; then
+    mv -f "$EXT/covert_into_readme.py" "$EXT/disabled/"
+fi
+
+echo
+echo "== 7. Restore normal Lenovo Fn-lock state =="
+
+FNLOCK="/sys/devices/pci0000:00/0000:00:14.3/PNP0C09:00/VPC2004:00/fn_lock"
+
+if [[ -w "$FNLOCK" ]]; then
+    echo 1 | sudo tee "$FNLOCK" >/dev/null
+    echo "Fn-lock set to 1 (normal/reset state)."
+else
+    echo "Fn-lock sysfs path not available on this boot; skipping."
+fi
+
+echo
+echo "== 8. Validate Python syntax =="
+
+python3 -m py_compile "$EXT"/*.py
+
+echo
+echo "== 9. Restart Nautilus =="
+
+nautilus -q || true
+sleep 2
+
+echo
+echo "== 10. Installed extension files =="
+
+find "$EXT" -maxdepth 1 -type f -name '*.py' -printf '%f\n' | sort
+
+echo
+echo "== 11. Current Nautilus version =="
+
+nautilus --version
+
+echo
+echo "============================================================"
+echo "Done."
+echo
+echo "ToFpon extensions are installed in:"
+echo "  $EXT"
+echo
+echo "Disabled unrelated extension:"
+echo "  $EXT/disabled/covert_into_readme.py"
+echo
+echo "The following GRUB i8042 parameters were intentionally NOT added:"
+echo "  i8042.reset=1 i8042.nomux=1 i8042.nopnp=1 i8042.noloop=1"
+echo "============================================================"
