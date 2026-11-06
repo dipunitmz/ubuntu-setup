@@ -1,0 +1,351 @@
+sudo apt update
+sudo apt install -y fzf git make gawk bash-completion
+
+cd /tmp
+git clone --recursive --depth 1 https://github.com/akinomyoga/ble.sh.git
+make -C ble.sh install PREFIX="$HOME/.local"
+cp ~/.bashrc ~/.bashrc.backup-$(date +%F-%H%M%S)
+
+
+
+
+
+
+
+
+
+cat > ~/.bashrc <<'BASHRC'
+# ==========================================================
+#              NIKHIL'S ENHANCED BASH CONFIG
+# ==========================================================
+
+# -------------------- PATH --------------------
+
+export PATH="$HOME/.local/bin:$PATH"
+
+# -------------------- HISTORY --------------------
+
+HISTCONTROL=ignoreboth:erasedups
+HISTSIZE=50000
+HISTFILESIZE=100000
+HISTIGNORE="ls:ll:la:pwd:exit:clear:c"
+shopt -s histappend
+shopt -s checkwinsize
+shopt -s cmdhist
+shopt -s lithist
+
+# -------------------- SYSTEM --------------------
+
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+# -------------------- COLORS --------------------
+
+C_RESET='\[\033[0m\]'
+C_BOLD='\[\033[1m\]'
+C_DIM='\[\033[2m\]'
+
+C_GREEN='\[\033[38;5;114m\]'
+C_BLUE='\[\033[38;5;111m\]'
+C_PURPLE='\[\033[38;5;183m\]'
+C_ORANGE='\[\033[38;5;215m\]'
+C_GRAY='\[\033[38;5;245m\]'
+C_CYAN='\[\033[38;5;116m\]'
+C_RED='\[\033[38;5;203m\]'
+
+# -------------------- GIT PROMPT --------------------
+
+git_prompt() {
+    local branch
+    branch=$(git branch --show-current 2>/dev/null)
+
+    if [[ -n "$branch" ]]; then
+        printf ' \001\033[38;5;183m\002 %s\001\033[0m\002' "$branch"
+    fi
+}
+
+# -------------------- SINGLE-LINE PROMPT --------------------
+
+set_bash_prompt() {
+    local exit_code=$?
+
+    # Synchronize history between terminal windows.
+    history -a
+    history -n
+
+    local status=""
+    if (( exit_code != 0 )); then
+        status=" \001\033[38;5;203m\002✘ ${exit_code}\001\033[0m\002"
+    fi
+
+    PS1="${C_GREEN}${C_BOLD}\u${C_RESET}"
+    PS1+="${C_GRAY}@${C_RESET}"
+    PS1+="${C_BLUE}${C_BOLD}\h${C_RESET}"
+    PS1+=" ${C_GRAY}in${C_RESET} "
+    PS1+="${C_ORANGE}\w${C_RESET}"
+    PS1+="\$(git_prompt)"
+    PS1+="${status} "
+    PS1+="${C_GREEN}${C_BOLD}❯${C_RESET} "
+
+    # Terminal title.
+    case "$TERM" in
+        xterm*|rxvt*|screen*|tmux*)
+            printf '\033]0;%s@%s: %s\007' "$USER" "$HOSTNAME" "$PWD"
+            ;;
+    esac
+}
+
+PROMPT_COMMAND=set_bash_prompt
+
+# -------------------- DIRECTORY COLORS --------------------
+
+if [ -x /usr/bin/dircolors ]; then
+    eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    alias dir='dir --color=auto'
+    alias vdir='vdir --color=auto'
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+# -------------------- DIRECTORY SHORTCUTS --------------------
+
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+
+alias home='cd ~'
+alias desk='cd ~/Desktop'
+alias down='cd ~/Downloads'
+
+# -------------------- BETTER LS --------------------
+
+alias ll='ls -lahF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# -------------------- GENERAL SHORTCUTS --------------------
+
+alias c='clear'
+alias cls='clear'
+alias reload='source ~/.bashrc'
+alias bashrc='nano ~/.bashrc'
+
+# -------------------- SYSTEM MONITORING --------------------
+
+alias ports='ss -tulnp'
+alias myip='hostname -I'
+alias mem='free -h'
+alias disk='df -h'
+alias processes='ps aux --sort=-%mem | head -15'
+alias listening='ss -tuln'
+alias cpu='top'
+alias psg='ps aux | grep -i'
+
+# -------------------- DOCKER --------------------
+
+alias dps='docker ps'
+alias dpa='docker ps -a'
+alias dimg='docker images'
+alias dlog='docker logs -f'
+alias dex='docker exec -it'
+alias dstop='docker stop'
+alias drm='docker rm'
+alias dvol='docker volume ls'
+alias dnet='docker network ls'
+
+# Stop all running containers.
+docker-stopall() {
+    local containers
+    containers=$(docker ps -q)
+
+    if [[ -n "$containers" ]]; then
+        docker stop $containers
+    else
+        echo "No running containers."
+    fi
+}
+
+# Interactive Docker container selection.
+denter() {
+    local container
+    container=$(docker ps --format '{{.ID}} {{.Names}}' |
+        fzf --prompt='Container> ' | awk '{print $1}')
+
+    [[ -n "$container" ]] && docker exec -it "$container" bash
+}
+
+# -------------------- GIT --------------------
+
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git log --oneline --graph --decorate -15'
+alias gd='git diff'
+alias gco='git checkout'
+alias gb='git branch'
+
+# -------------------- MAVEN --------------------
+
+alias mci='mvn clean install'
+alias mcp='mvn clean package'
+alias mct='mvn clean test'
+
+# -------------------- INTELLIJ --------------------
+
+idea() {
+    GTK_USE_PORTAL=0 intellij-idea "$@" >/dev/null 2>&1 &
+}
+
+# -------------------- NOTIFICATIONS --------------------
+
+alias alert='notify-send --urgency=low -i terminal "Command finished"'
+
+# -------------------- BASH COMPLETION --------------------
+
+if ! shopt -oq posix; then
+    if [[ -f /usr/share/bash-completion/bash_completion ]]; then
+        source /usr/share/bash-completion/bash_completion
+    elif [[ -f /etc/bash_completion ]]; then
+        source /etc/bash_completion
+    fi
+fi
+
+# -------------------- FZF INTEGRATION --------------------
+
+if command -v fzf >/dev/null 2>&1; then
+    if fzf --bash >/dev/null 2>&1; then
+        eval "$(fzf --bash)"
+    elif [[ -f /usr/share/doc/fzf/examples/key-bindings.bash ]]; then
+        source /usr/share/doc/fzf/examples/key-bindings.bash
+        [[ -f /usr/share/bash-completion/completions/fzf ]] &&
+            source /usr/share/bash-completion/completions/fzf
+    fi
+
+    # Fuzzy history search with visible result numbers.
+    __history_fzf() {
+        local selected
+
+        history -a
+        history -n
+
+        selected=$(
+            builtin history 50000 |
+            tac |
+            awk '
+                {
+                    sub(/^[[:space:]]*[0-9]+[[:space:]]+/, "")
+                    if (length($0) && !seen[$0]++)
+                        printf "%d\t%s\n", NR, $0
+                }
+            ' |
+            fzf \
+                --height=70% \
+                --layout=reverse \
+                --border \
+                --no-sort \
+                --delimiter="$(printf '\t')" \
+                --with-nth=2.. \
+                --prompt='History > ' \
+                --header='Type to search | Enter: select | Esc: cancel' \
+                --query="$READLINE_LINE"
+        )
+
+        if [[ -n "$selected" ]]; then
+            READLINE_LINE="${selected#*$'\t'}"
+            READLINE_POINT=${#READLINE_LINE}
+        fi
+    }
+
+    # Ctrl+F: Search all previous commands.
+    bind -m emacs-standard -x '"\C-f": __history_fzf'
+fi
+
+# -------------------- HISTORY PREFIX SEARCH --------------------
+
+# Type "docker", then press Up/Down to browse commands
+# that begin with docker.
+
+bind '"\e[A": history-search-backward'
+bind '"\e[B": history-search-forward'
+
+# -------------------- BLE.SH --------------------
+
+# Inline autosuggestions, syntax highlighting and enhanced completion.
+if [[ -f "$HOME/.local/share/blesh/ble.sh" ]]; then
+    source "$HOME/.local/share/blesh/ble.sh"
+fi
+
+# ==========================================================
+#                       END CONFIG
+# ==========================================================
+BASHRC
+
+
+source ~/.bashrc
+
+Ctrl + F
+New
+Search your complete command history with fuzzy matching. Type docker, browse matching commands, and press Enter to put the selected command on your prompt.
+
+Ctrl + R
+Fuzzy search
+Open the fzf history selector.
+
+Up / Down
+Search previous commands matching what you've already typed.
+
+Ctrl + T
+Search files and insert the selected path into your command.
+
+Alt + C
+Fuzzy-search directories and jump into one.
+
+Tab
+Enhanced completion and suggestions through ble.sh.
+
+
+fzf --version
+bash --version | head -1
+ls -l ~/.local/share/blesh/ble.sh
+bind -P | grep -E 'history|__fzf'
+
+mkdir -p ~/.blerc
+echo 'bleopt keymap_vi_mode_show=' >> ~/.blerc
+
+# Check what is inside the directory
+ls -la ~/.blerc
+# Remove it if empty
+rmdir ~/.blerc 2>/dev/null
+# Create the actual configuration file
+echo 'bleopt keymap_vi_mode_show=' > ~/.blerc
+source ~/.bashrc
+
+# Preserve the mistakenly created directory, if it exists.
+if [[ -d ~/.blerc ]]; then
+    mv ~/.blerc ~/.blerc.directory-backup
+fi
+# Create the actual configuration file.
+printf '%s\n' \
+  'bleopt keymap_emacs_mode_string_multiline=' \
+  > ~/.blerc
+
+  ls -ld ~/.blerc
+
+  mv ~/.blerc ~/.blerc.directory-backup
+
+  printf '%s\n' 'bleopt keymap_emacs_mode_string_multiline=' > ~/.blerc
+  bind -P | grep -E 'backward-kill-word|unix-word-rubout'
+
+  cat >> ~/.blerc <<'EOF'
+
+# Alt + Backspace: delete the previous word
+ble-bind -f 'M-DEL' kill-backward-cword
+ble-bind -f 'M-C-?' kill-backward-cword
+EOF
